@@ -1,5 +1,6 @@
 package com.example.hong.practice6;
 
+import android.text.TextWatcher;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,11 +13,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.text.Editable;
 
 import java.util.ArrayList;
 
+import static android.R.id.list;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -25,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     Button button;
     ArrayList<restaurant_info> restaurant = new ArrayList<restaurant_info>();
     static final int _RESULT_MSG_CODE = 100;
-    //  ArrayList<String> data = new ArrayList<String>();
+    EditText et;
     restaurant_info_adapter adapter;
     CheckBox cb;
     ArrayList<Integer> ischecked = new ArrayList<Integer>();
@@ -37,9 +42,7 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listview);
         button = (Button) findViewById(R.id.b4);
         cb = (CheckBox) findViewById(R.id.checkBox);
-
-
-        출처: http://androes.tistory.com/75 [Androes's NotePad]
+        et = (EditText) findViewById(R.id.editText);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
         restaurant.add(new restaurant_info("BBQ", "양식", "01011112222", "menu1", "menu2", "menu3", "www.naver.com", "20170413", false));
@@ -49,6 +52,26 @@ public class MainActivity extends AppCompatActivity {
         restaurant.add(new restaurant_info("july", "중식", "01020733332", "menu1", "menu2", "menu3", "www.naver.com", "20170413", false));
         restaurant.add(new restaurant_info("qubic", "한식", "01009129938", "menu1", "menu2", "menu3", "www.naver.com", "20170413", false));
         setListview();
+        et.addTextChangedListener(new TextWatcher() {//EditText에 Text가 입력되었을 때
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String search = s.toString();
+                adapter.getFilter().filter(search);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+
     }
 
     public void onClick(View v) {
@@ -67,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.b4://선택
                 if (button.getText().equals("선택")) {
                     button.setText("삭제");
-                    checkbox_use(TRUE);
+                    adapter.checkbox_use(TRUE);
                 } else {
                     AlertDialog.Builder dlg = new AlertDialog.Builder(this);
                     dlg.setTitle("삭제확인");
@@ -78,29 +101,12 @@ public class MainActivity extends AppCompatActivity {
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                  //  SparseBooleanArray booleans = listView.getCheckedItemPositions();
-                                    for(int i=0;i<adapter.positions.size();i++){
-                                        Toast.makeText(getApplicationContext(),""+adapter.positions.get(i),Toast.LENGTH_SHORT).show();
-                                        restaurant.remove(adapter.positions.get(i));
-                                    }adapter.notifyDataSetChanged();
-
-                                    //  Toast.makeText(getApplicationContext(), "" + booleans, Toast.LENGTH_SHORT).show();
-                             /*      for (int i = 0; i < restaurant.size(); i++) {
-                                        if (booleans.get(i)) {
-                                            Toast.makeText(getApplicationContext(), "" + restaurant.get(i).name, Toast.LENGTH_SHORT).show();
+                                    for (int i = 0; i < restaurant.size(); i++) {
+                                        if (restaurant.get(i).ischecked) {
+                                            restaurant.remove(i);
                                         }
-                                    }*/
-
-
-//anditstory.tistory.com/entry/안드로이드ListViewCHOICEMODESINGLECHOICEMODEMULTIPLE [i티스토리]
-//                                    for (int i = 0; i < restaurant.size(); i++) {
-//                                        if(cb.isChecked()){
-//                                            Toast.makeText(getApplicationContext(), ""+restaurant.get(i).name, Toast.LENGTH_SHORT).show();
-//                                          //  restaurant.remove(i);
-//                                        }
-//                                    }
-                                    checkbox_use(FALSE);
-                                    adapter.notifyDataSetChanged();
+                                    }
+                                    adapter.checkbox_use(FALSE);
                                     Toast.makeText(getApplicationContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -108,12 +114,7 @@ public class MainActivity extends AppCompatActivity {
                     button.setText("선택");
                 }
                 break;
-            case R.id.checkBox:
-
-                Toast.makeText(getApplicationContext(), "!!!", Toast.LENGTH_SHORT).show();
-                break;
         }
-
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -163,9 +164,4 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    void checkbox_use(Boolean TF) {
-        adapter = null;
-        adapter = new restaurant_info_adapter(this, restaurant, TF);
-        listView.setAdapter(adapter);
-    }
 }

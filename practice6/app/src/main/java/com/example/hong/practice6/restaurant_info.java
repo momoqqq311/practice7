@@ -78,7 +78,4 @@ public class restaurant_info implements Serializable {
         String str[] = {name,menu1,menu2,menu3,tel,homepage,date,kind};
         return str;
     }
-    public void setIschecked(boolean TF){
-        this.ischecked=TF;
-    }
 }

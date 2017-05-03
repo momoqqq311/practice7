@@ -9,10 +9,13 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
 
 /**
  * Created by hong on 2017-04-13.
@@ -20,9 +23,9 @@ import java.util.Comparator;
 
 public class restaurant_info_adapter extends BaseAdapter {
     ArrayList<restaurant_info> data = new ArrayList<restaurant_info>();
+    ArrayList<restaurant_info> data2 = new ArrayList<restaurant_info>();
     Context context;
     boolean checkbox_use;
-    final ArrayList<Integer> positions = new ArrayList<Integer>();
 
     restaurant_info_adapter(Context context, ArrayList<restaurant_info> data, boolean checkbox_use) {
         this.context = context;
@@ -58,7 +61,11 @@ public class restaurant_info_adapter extends BaseAdapter {
         cb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                positions.add(position);
+                if(data.get(position).ischecked){
+                    data.get(position).ischecked=false;
+                }else{
+                    data.get(position).ischecked=true;
+                }
             }
         });
 
@@ -77,8 +84,10 @@ public class restaurant_info_adapter extends BaseAdapter {
         }
 
         if (checkbox_use) {
+            cb.setChecked(false);
             cb.setVisibility(View.VISIBLE);
         } else {
+            cb.setChecked(false);
             cb.setVisibility(View.INVISIBLE);
         }
         return convertView;
@@ -106,6 +115,47 @@ public class restaurant_info_adapter extends BaseAdapter {
     public void setNameAsc2Sort() {
         Collections.sort(data, nameAsc2);
         this.notifyDataSetChanged();
+
+    }public void checkbox_use(boolean TF){
+            checkbox_use=TF;
+            notifyDataSetChanged();
+    }
+    public Filter getFilter() {
+        Filter filter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String filterString = constraint.toString();
+                FilterResults results = new FilterResults();
+                ArrayList<restaurant_info> list = data;
+                data2 = data;
+                int count = list.size();
+                ArrayList<restaurant_info> nlist = new ArrayList<restaurant_info>();
+                if(filterString.length()==0){
+                    results.values= data2;
+                    results.count = data2.size();
+                }
+                else{
+                    for (int i = 0; i < count; i++) {
+                        if (list.get(i).getName().contains(filterString)) {
+                            nlist.add(list.get(i));
+                        }
+                    }
+                    results.values = nlist;
+                    results.count = nlist.size();
+                }
+
+
+                return results;
+            }
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                data = (ArrayList<restaurant_info>) results.values;
+                notifyDataSetChanged();
+            }
+        };
+        return filter;
+
+
     }
 
 
